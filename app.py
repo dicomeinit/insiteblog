@@ -1,17 +1,22 @@
 import datetime
 from flask import Flask, render_template, request
+from pymongo import MongoClient
+import certifi
 
 app = Flask(__name__)
-
+client = MongoClient("mongodb+srv://diana:diana12345@insiteblog-application.7n6bk.mongodb.net/test", tlsCAFile=certifi.where())
+app.db = client.insiteblog
 entries = []
 
 
 @app.route("/", methods=["GET", "POST"])
 def home():
+    print([e for e in app.db.entries.find({})])
     if request.method == "POST":
         entry_content = request.form.get("content")
         formatted_date = datetime.datetime.today().strftime("%Y-%m-%d")
         entries.append((entry_content, formatted_date))
+        app.db.entries.insert_one({"content": entry_content, "date": formatted_date})
 
     entries_with_date = [
         (
@@ -23,4 +28,5 @@ def home():
 
     ]
     return render_template("home.html", entries=entries_with_date)
+
 
