@@ -1,3 +1,4 @@
 flask
 pymongo==4.2.0
 gunicorn
+certifi
